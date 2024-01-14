@@ -1,1 +1,1 @@
-# Forge4Flow | Flow Events Connector
+# flow-events-connector
