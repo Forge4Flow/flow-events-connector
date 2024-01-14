@@ -1,0 +1,25 @@
+port: 8000
+coreInstall: true
+flowNetwork: emulator
+adminAccount: "0xf8d6e0586b0a20c7"
+logLevel: 1
+enableAccessLog: true
+autoMigrate: true
+authentication:
+  apiKey: your_api_key
+  autoRegister: true
+datastore:
+  mysql:
+    username: forge4flow
+    password: forge4flow
+    hostname: 127.0.0.1
+    database: forge4flow
+    migrationSource: file:///Users/boiseitguru/Development/Forge4Flow/internal_dev/Forge4Flow-Core/migrations/datastore/mysql
+eventstore:
+  synchronizeEvents: false
+  mysql:
+    username: forge4flow
+    password: forge4flow
+    hostname: 127.0.0.1
+    database: forge4flowEvents
+    migrationSource: file:///Users/boiseitguru/Development/Forge4Flow/internal_dev/Forge4Flow-Core/migrations/eventstore/mysql

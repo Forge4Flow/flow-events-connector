@@ -1,0 +1,6 @@
+BEGIN;
+
+DROP TABLE IF EXISTS flowEvents;
+DROP TABLE IF EXISTS flowEventActions;
+
+COMMIT;
