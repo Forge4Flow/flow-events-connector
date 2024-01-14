@@ -1,12 +1,12 @@
-package main
+package types
 
 import (
+	"flow-events-connector/internal/config"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
 
-	"github.com/openfaas/connector-sdk/types"
 	"github.com/openfaas/faas-provider/auth"
 	"github.com/openfaas/faas-provider/sdk"
 	ptypes "github.com/openfaas/faas-provider/types"
@@ -22,8 +22,8 @@ type EventFunction struct {
 	Namespace string
 }
 
-func getFunctionEvents(c *types.ControllerConfig, client *http.Client, creds *auth.BasicAuthCredentials, events *EventFunctions) error {
-	u, _ := url.Parse(c.GatewayURL)
+func GetFunctionEvents(c config.FlowEventsConnectorConfig, client *http.Client, creds *auth.BasicAuthCredentials, events *EventFunctions) error {
+	u, _ := url.Parse(c.Controller.GatewayURL)
 	controller := sdk.NewSDK(u, creds, client)
 
 	namespaces, err := controller.GetNamespaces()
@@ -42,7 +42,7 @@ func getFunctionEvents(c *types.ControllerConfig, client *http.Client, creds *au
 		}
 
 		for _, function := range functions {
-			err = toEventFunction(function, namespace, events)
+			err = toEventFunction(function, namespace, events, c.Controller.Topic)
 			if err != nil {
 				return err
 			}
@@ -52,11 +52,11 @@ func getFunctionEvents(c *types.ControllerConfig, client *http.Client, creds *au
 	return nil
 }
 
-func getCoreEvents(c *types.ControllerConfig, events *EventFunctions) error {
+func GetCoreEvents(c config.FlowEventsConnectorConfig, events *EventFunctions) error {
 	return nil
 }
 
-func toEventFunction(f ptypes.FunctionStatus, namespace string, events *EventFunctions) error {
+func toEventFunction(f ptypes.FunctionStatus, namespace string, events *EventFunctions, topic string) error {
 	if f.Annotations == nil {
 		return fmt.Errorf("%s has no annotations", f.Name)
 	}
