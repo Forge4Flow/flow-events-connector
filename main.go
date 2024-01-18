@@ -71,7 +71,7 @@ func startEventsProbe(cfg config.FlowEventsConnectorConfig, httpClient *http.Cli
 	for {
 		<-ticker.C
 
-		var events types.EventFunctions
+		var events types.Networks
 		err := types.GetFunctionEvents(cfg, httpClient, creds, &events)
 		if err != nil {
 			log.Fatal().Msg("Could Not Get Function Events")

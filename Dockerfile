@@ -16,6 +16,4 @@ USER flow-events-connector
 WORKDIR /forge4flow
 COPY --from=backend-builder /forge4flow/flow-events-connector .
 
-EXPOSE 8000
-
 ENTRYPOINT ["./flow-events-connector"]

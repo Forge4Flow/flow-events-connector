@@ -12,9 +12,9 @@ import (
 	ptypes "github.com/openfaas/faas-provider/types"
 )
 
-type EventFunctions map[string]Events
+type Networks map[string]EventFunctions
 
-type Events map[string]EventFunction
+type EventFunctions map[string][]EventFunction
 
 type EventFunction struct {
 	FuncData  ptypes.FunctionStatus
@@ -22,7 +22,7 @@ type EventFunction struct {
 	Namespace string
 }
 
-func GetFunctionEvents(c config.FlowEventsConnectorConfig, client *http.Client, creds *auth.BasicAuthCredentials, events *EventFunctions) error {
+func GetFunctionEvents(c config.FlowEventsConnectorConfig, client *http.Client, creds *auth.BasicAuthCredentials, events *Networks) error {
 	u, _ := url.Parse(c.Controller.GatewayURL)
 	controller := sdk.NewSDK(u, creds, client)
 
@@ -52,11 +52,11 @@ func GetFunctionEvents(c config.FlowEventsConnectorConfig, client *http.Client, 
 	return nil
 }
 
-func GetCoreEvents(c config.FlowEventsConnectorConfig, events *EventFunctions) error {
+func GetCoreEvents(c config.FlowEventsConnectorConfig, events *Networks) error {
 	return nil
 }
 
-func toEventFunction(f ptypes.FunctionStatus, namespace string, events *EventFunctions, topic string) error {
+func toEventFunction(f ptypes.FunctionStatus, namespace string, events *Networks, topic string) error {
 	if f.Annotations == nil {
 		return fmt.Errorf("%s has no annotations", f.Name)
 	}
@@ -78,11 +78,11 @@ func toEventFunction(f ptypes.FunctionStatus, namespace string, events *EventFun
 		network := wNetwork[0]
 		event := wNetwork[1]
 
-		(*events)[network][event] = EventFunction{
+		(*events)[network][event] = append((*events)[network][event], EventFunction{
 			FuncData:  f,
 			Name:      f.Name,
 			Namespace: namespace,
-		}
+		})
 	}
 
 	return nil
