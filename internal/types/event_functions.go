@@ -41,7 +41,8 @@ func (ef *EventFunction) InvokeFunction(i *cTypes.Invoker) error {
 		"X-Connector": {"flow-events-connector"},
 	}
 
-	gwURL := fmt.Sprintf("%s/%s", i.GatewayURL, ef.String())
+	// TODO: Allow Async Functions
+	gwURL := fmt.Sprintf("%s/%s/%s", i.GatewayURL, "function", ef.String())
 
 	req, err := http.NewRequest(http.MethodPost, gwURL, nil)
 	if err != nil {

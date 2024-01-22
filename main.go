@@ -74,6 +74,8 @@ func startEventsProbe(cfg config.FlowEventsConnectorConfig, httpClient *http.Cli
 	for {
 		<-ticker.C
 
+		flowSvc.StopEventMonitors()
+
 		var events types.Networks
 		err := types.GetFunctionEvents(cfg, httpClient, creds, &events)
 		if err != nil {
@@ -84,5 +86,7 @@ func startEventsProbe(cfg config.FlowEventsConnectorConfig, httpClient *http.Cli
 		if err != nil {
 			log.Fatal().Msg("Could Not Get Function Events")
 		}
+
+		flowSvc.StartEventMonitors(events)
 	}
 }

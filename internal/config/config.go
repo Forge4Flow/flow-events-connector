@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	DefaultDatastoreMigrationSource = "github://forge4flow/flow-events-connector/internal/migrations/migrations"
+	DefaultDatastoreMigrationSource = "github://forge4flow/flow-events-connector/internal/database/migrations"
 	DefaultUserAgent                = "forge4flow/flow-events-connector@v0.0.1"
 	DefaultTopic                    = "flow-events"
 	Prefix                          = "flow_events"
