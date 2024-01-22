@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strings"
 
+	cTypes "github.com/openfaas/connector-sdk/types"
 	"github.com/openfaas/faas-provider/auth"
 	"github.com/openfaas/faas-provider/sdk"
 	ptypes "github.com/openfaas/faas-provider/types"
@@ -20,6 +21,10 @@ type EventFunction struct {
 	FuncData  ptypes.FunctionStatus
 	Name      string
 	Namespace string
+}
+
+func (ef *EventFunction) InvokeFunction(invoker *cTypes.Invoker) {
+	// TODO
 }
 
 func GetFunctionEvents(c config.FlowEventsConnectorConfig, client *http.Client, creds *auth.BasicAuthCredentials, events *Networks) error {

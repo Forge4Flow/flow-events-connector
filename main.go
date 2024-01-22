@@ -28,9 +28,6 @@ func main() {
 		log.Fatal().Msg("Failed to initialize database")
 	}
 
-	// Init Flow Service
-	flowSvc := flow.NewService(db)
-
 	log.Info().Msgf("Gateway URL: %s", cfg.Controller.GatewayURL)
 	log.Info().Msgf("Rebuild interval: %s\tRebuild timeout: %s", cfg.Controller.RebuildInterval, cfg.Controller.RebuildTimeout)
 
@@ -59,12 +56,18 @@ func main() {
 		}
 	}()
 
-	if err := startEventsProbe(cfg, httpClient, creds, invoker, flowSvc); err != nil {
+	// Init Flow Service
+	flowSvc := flow.NewService(cfg.Flow, db, invoker)
+
+	if err := startEventsProbe(cfg, httpClient, creds, flowSvc); err != nil {
 		log.Error().Msgf("Error: %s\n", err.Error())
 	}
+
+	flowSvc.WaitGroup.Wait()
+	flowSvc.StopEventMonitors()
 }
 
-func startEventsProbe(cfg config.FlowEventsConnectorConfig, httpClient *http.Client, creds *auth.BasicAuthCredentials, invoker *cTypes.Invoker, flowSvc *flow.FlowService) error {
+func startEventsProbe(cfg config.FlowEventsConnectorConfig, httpClient *http.Client, creds *auth.BasicAuthCredentials, flowSvc *flow.FlowService) error {
 	ticker := time.NewTicker(cfg.Controller.RebuildInterval)
 	defer ticker.Stop()
 

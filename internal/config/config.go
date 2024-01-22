@@ -26,6 +26,7 @@ type FlowEventsConnectorConfig struct {
 	AutoMigrate bool              `mapstructure:"autoMigrate"`
 	Datastore   *DatastoreConfig  `mapstructure:"datastore"`
 	Controller  *ControllerConfig `mapstructure:"controller"`
+	Flow        *FlowConfig       `mapstructure:"flow"`
 }
 
 type DatastoreConfig struct {
@@ -54,6 +55,15 @@ type ControllerConfig struct {
 	BasicAuth                bool          `mapstructure:"basicAuth"`
 	UserAgent                string        `mapstructure:"userAgent"`
 	Topic                    string        `mapstructure:"topic"`
+}
+
+type FlowConfig struct {
+	MainnetAccessNode   string `mapstructure:"mainnetAccessNode"`
+	TestnetAccessNode   string `mapstructure:"testnetAccessNode"`
+	CrescendoAccessNode string `mapstructure:"crescendoAccessNode"`
+	EmulatorAccessNode  string `mapstructure:"emulatorAccessNode"`
+	UseCrescendo        bool   `mapstructure:"useCrescendo"`
+	UseEmulator         bool   `mapstructure:"useEmulator"`
 }
 
 func NewConfig() FlowEventsConnectorConfig {
