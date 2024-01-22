@@ -3,9 +3,12 @@ package types
 import (
 	"flow-events-connector/internal/config"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	cTypes "github.com/openfaas/connector-sdk/types"
 	"github.com/openfaas/faas-provider/auth"
@@ -23,8 +26,80 @@ type EventFunction struct {
 	Namespace string
 }
 
-func (ef *EventFunction) InvokeFunction(invoker *cTypes.Invoker) {
-	// TODO
+func (ef *EventFunction) String() string {
+	if len(ef.Namespace) > 0 {
+		return fmt.Sprintf("%s.%s", ef.Name, ef.Namespace)
+	}
+
+	return ef.Name
+}
+
+func (ef *EventFunction) InvokeFunction(i *cTypes.Invoker) error {
+	// TODO: Connect values to config
+	headers := http.Header{
+		"X-Topic":     {"flow-events"},
+		"X-Connector": {"flow-events-connector"},
+	}
+
+	gwURL := fmt.Sprintf("%s/%s", i.GatewayURL, ef.String())
+
+	req, err := http.NewRequest(http.MethodPost, gwURL, nil)
+	if err != nil {
+		return fmt.Errorf("failed to create http request to %s %w", gwURL, err)
+	}
+
+	for k, v := range headers {
+		req.Header[k] = v
+	}
+
+	if req.Body != nil {
+		defer req.Body.Close()
+	}
+	start := time.Now()
+
+	var body *[]byte
+	res, err := i.Client.Do(req)
+	if err != nil {
+		i.Responses <- cTypes.InvokerResponse{
+			Error:    fmt.Errorf("unable to invoke %s %w", ef.String(), err),
+			Function: ef.Name,
+			Topic:    "flow-events",
+			Status:   http.StatusServiceUnavailable,
+			Duration: time.Since(start),
+		}
+		return err
+	}
+
+	if res.Body != nil {
+		defer res.Body.Close()
+		bytesOut, err := io.ReadAll(res.Body)
+
+		if err != nil {
+			log.Printf("Error reading body")
+			i.Responses <- cTypes.InvokerResponse{
+				Error:    fmt.Errorf("unable to invoke %s %w", ef.String(), err),
+				Status:   http.StatusServiceUnavailable,
+				Function: ef.Name,
+				Topic:    "flow-events",
+				Duration: time.Since(start),
+			}
+
+			return fmt.Errorf("unable to read body %s", err)
+		}
+
+		body = &bytesOut
+	}
+
+	i.Responses <- cTypes.InvokerResponse{
+		Body:     body,
+		Status:   res.StatusCode,
+		Header:   &res.Header,
+		Function: ef.Name,
+		Topic:    "flow-events",
+		Duration: time.Since(start),
+	}
+
+	return nil
 }
 
 func GetFunctionEvents(c config.FlowEventsConnectorConfig, client *http.Client, creds *auth.BasicAuthCredentials, events *Networks) error {

@@ -24,7 +24,7 @@ func (svc *FlowService) startEventMonitor(network string, functions types.EventF
 
 	// Create Event Filter
 	var filter flowSDK.EventFilter
-	for eventType, _ := range functions {
+	for eventType := range functions {
 		filter.EventTypes = append(filter.EventTypes, eventType)
 	}
 

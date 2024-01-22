@@ -3,6 +3,7 @@ module flow-events-connector
 go 1.20
 
 require (
+	github.com/forge4flow/forge4flow-core v0.0.3-0.20240122231513-257079b0673d
 	github.com/lib/pq v1.10.9
 	github.com/onflow/flow-go-sdk v0.41.20
 	github.com/openfaas/connector-sdk v0.7.1
@@ -15,7 +16,6 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
 	github.com/ethereum/go-ethereum v1.13.5 // indirect
-	github.com/forge4flow/forge4flow-core v0.0.3-0.20240122231513-257079b0673d // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.4.1-0.20230228173756-c0c9f774e40c // indirect
 	github.com/fxamacker/circlehash v0.3.0 // indirect
