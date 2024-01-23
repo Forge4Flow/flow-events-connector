@@ -49,10 +49,10 @@ jobs:
       - name: Publish ${{ matrix.svc }}
         uses: docker/build-push-action@v3
         with:
-          context: ./flow-events-connector
-          file: ./flow-events-connector/Dockerfile
+          context: ./
+          file: ./Dockerfile
           outputs: "type=registry,push=true"
-          platforms: linux/amd64,linux/arm/v7,linux/arm64
+          platforms: linux/amd64
           build-args: |
             VERSION=${{ env.TAG }}
             GIT_COMMIT=${{ github.sha }}
