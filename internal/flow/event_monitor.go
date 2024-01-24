@@ -6,7 +6,6 @@ import (
 
 	flowSDK "github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/access/grpc"
-	"github.com/rs/zerolog/log"
 )
 
 func (svc *FlowService) startEventMonitor(network string, functions types.EventFunctions) error {
@@ -40,13 +39,15 @@ func (svc *FlowService) startEventMonitor(network string, functions types.EventF
 
 	svc.WaitGroup.Add(1)
 
-	reconnect := func(height uint64) {
+	reconnect := func(height uint64) error {
 		fmt.Printf("Reconnecting at block %d\n", height)
 
 		data, errChan, err = client.SubscribeEventsByBlockHeight(svc.ctx, height, filter)
 		if err != nil {
-			log.Error().Msg(err.Error())
+			return err
 		}
+
+		return nil
 	}
 
 	lastHeight := header.Height
@@ -63,7 +64,12 @@ func (svc *FlowService) startEventMonitor(network string, functions types.EventF
 					return nil
 				}
 				// unexpected close
-				reconnect(lastHeight + 1)
+				err := reconnect(lastHeight + 1)
+				if err != nil {
+					svc.WaitGroup.Done()
+					return err
+				}
+
 				continue
 			}
 
@@ -82,12 +88,22 @@ func (svc *FlowService) startEventMonitor(network string, functions types.EventF
 					return nil // graceful shutdown
 				}
 				// unexpected close
-				reconnect(lastHeight + 1)
+				err := reconnect(lastHeight + 1)
+				if err != nil {
+					svc.WaitGroup.Done()
+					return err
+				}
+
 				continue
 			}
 
 			fmt.Printf("~~~ ERROR: %s ~~~\n", err.Error())
-			reconnect(lastHeight + 1)
+			err = reconnect(lastHeight + 1)
+			if err != nil {
+				svc.WaitGroup.Done()
+				return err
+			}
+
 			continue
 		}
 	}
