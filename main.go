@@ -28,18 +28,18 @@ func main() {
 		log.Fatal().Msg("Failed to initialize database")
 	}
 
-	log.Info().Msgf("Gateway URL: %s", cfg.Controller.GatewayURL)
-	log.Info().Msgf("Rebuild interval: %s\tRebuild timeout: %s", cfg.Controller.RebuildInterval, cfg.Controller.RebuildTimeout)
+	log.Info().Msgf("Gateway URL: %s", cfg.GatewayURL)
+	log.Info().Msgf("Rebuild interval: %s\tRebuild timeout: %s", cfg.RebuildInterval, cfg.RebuildTimeout)
 
-	httpClient := cTypes.MakeClient(cfg.Controller.UpstreamTimeout)
+	httpClient := cTypes.MakeClient(cfg.UpstreamTimeout)
 
 	invoker := cTypes.NewInvoker(
-		cfg.Controller.GatewayURL,
+		cfg.GatewayURL,
 		httpClient,
-		cfg.Controller.ContentType,
-		cfg.Controller.PrintResponse,
-		cfg.Controller.PrintRequestBody,
-		cfg.Controller.UserAgent)
+		cfg.ContentType,
+		cfg.PrintResponse,
+		cfg.PrintRequestBody,
+		cfg.UserAgent)
 
 	go func() {
 		for {
@@ -68,7 +68,7 @@ func main() {
 }
 
 func startEventsProbe(cfg config.FlowEventsConnectorConfig, httpClient *http.Client, creds *auth.BasicAuthCredentials, flowSvc *flow.FlowService) error {
-	ticker := time.NewTicker(cfg.Controller.RebuildInterval)
+	ticker := time.NewTicker(cfg.RebuildInterval)
 	defer ticker.Stop()
 
 	for {

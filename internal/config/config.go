@@ -20,16 +20,15 @@ const (
 	DefaultMainnetAccessNode        = "access.mainnet.nodes.onflow.org:9000"
 	DefaultTestnetAccessNode        = "access.testnet.nodes.onflow.org:9000"
 	DefaultCrescendoAccessNode      = "access.crescendo.nodes.onflow.org:9000"
-	DefaultEmulatorAccessNode       = ""
 	Prefix                          = "flow_events"
 )
 
 type FlowEventsConnectorConfig struct {
-	LogLevel    int8              `mapstructure:"logLevel"`
-	AutoMigrate bool              `mapstructure:"autoMigrate"`
-	Datastore   *DatastoreConfig  `mapstructure:"datastore"`
-	Controller  *ControllerConfig `mapstructure:"controller"`
-	Flow        *FlowConfig       `mapstructure:"flow"`
+	LogLevel    int8             `mapstructure:"logLevel"`
+	AutoMigrate bool             `mapstructure:"autoMigrate"`
+	Datastore   *DatastoreConfig `mapstructure:"datastore"`
+	Flow        *FlowConfig      `mapstructure:"flow"`
+	ControllerConfig
 }
 
 type DatastoreConfig struct {
@@ -78,7 +77,6 @@ func NewConfig() FlowEventsConnectorConfig {
 	viper.SetDefault("flow.mainnetAccessNode", DefaultMainnetAccessNode)
 	viper.SetDefault("flow.testnetAccessNode", DefaultTestnetAccessNode)
 	viper.SetDefault("flow.crescendoAccessNode", DefaultCrescendoAccessNode)
-	viper.SetDefault("flow.emulatorAccessNode", DefaultEmulatorAccessNode)
 	viper.SetDefault("flow.useCrescendo", false)
 	viper.SetDefault("flow.useEmulator", false)
 
@@ -103,6 +101,10 @@ func NewConfig() FlowEventsConnectorConfig {
 	zerolog.SetGlobalLevel(zerolog.Level(config.LogLevel))
 	if zerolog.GlobalLevel() == zerolog.DebugLevel {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	}
+
+	if config.Flow.UseEmulator && config.Flow.EmulatorAccessNode == "" {
+		log.Fatal().Msg("You must specify EmulatorAccessNode when UseEmulator is set to true")
 	}
 
 	return config

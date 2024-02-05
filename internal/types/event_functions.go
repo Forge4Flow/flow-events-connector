@@ -104,7 +104,7 @@ func (ef *EventFunction) InvokeFunction(i *cTypes.Invoker) error {
 }
 
 func GetFunctionEvents(c config.FlowEventsConnectorConfig, client *http.Client, creds *auth.BasicAuthCredentials, events *Networks) error {
-	u, _ := url.Parse(c.Controller.GatewayURL)
+	u, _ := url.Parse(c.GatewayURL)
 	controller := sdk.NewSDK(u, creds, client)
 
 	namespaces, err := controller.GetNamespaces()
@@ -123,7 +123,7 @@ func GetFunctionEvents(c config.FlowEventsConnectorConfig, client *http.Client, 
 		}
 
 		for _, function := range functions {
-			err = toEventFunction(function, namespace, events, c.Controller.Topic)
+			err = toEventFunction(function, namespace, events, c.Topic)
 			if err != nil {
 				return err
 			}
