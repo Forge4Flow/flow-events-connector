@@ -3,7 +3,6 @@ package flow
 import (
 	"context"
 	"flow-events-connector/internal/config"
-	"flow-events-connector/internal/database"
 	"flow-events-connector/internal/service"
 	"flow-events-connector/internal/types"
 	"sync"
@@ -26,7 +25,8 @@ type FlowService struct {
 	WaitGroup *sync.WaitGroup
 }
 
-func NewService(cfg *config.FlowConfig, db database.Database, invoker *cTypes.Invoker) *FlowService {
+// func NewService(cfg *config.FlowConfig, db database.Database, invoker *cTypes.Invoker) *FlowService {
+func NewService(cfg *config.FlowConfig, invoker *cTypes.Invoker) *FlowService {
 	// Setup Mainnet Client
 	mainnet, err := grpc.NewClient(cfg.MainnetAccessNode)
 	if err != nil {
@@ -58,7 +58,8 @@ func NewService(cfg *config.FlowConfig, db database.Database, invoker *cTypes.In
 	}
 
 	return &FlowService{
-		BaseService:     service.NewBaseService(db),
+		// BaseService:     service.NewBaseService(db),
+		BaseService:     service.NewBaseService(),
 		mainnetClient:   mainnet,
 		testnetClient:   testnet,
 		crescendoClient: crescendo,

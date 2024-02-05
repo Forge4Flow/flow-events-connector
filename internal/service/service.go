@@ -14,8 +14,10 @@ func (svc BaseService) DB() database.Database {
 	return svc.db
 }
 
-func NewBaseService(db database.Database) BaseService {
-	return BaseService{
-		db: db,
-	}
+// func NewBaseService(db database.Database) BaseService {
+func NewBaseService() BaseService {
+	// return BaseService{
+	// 	db: db,
+	// }
+	return BaseService{}
 }
