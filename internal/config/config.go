@@ -20,7 +20,6 @@ const (
 	DefaultMainnetAccessNode        = "access.mainnet.nodes.onflow.org:9000"
 	DefaultTestnetAccessNode        = "access.testnet.nodes.onflow.org:9000"
 	DefaultCrescendoAccessNode      = "access.crescendo.nodes.onflow.org:9000"
-	Prefix                          = "flow_events"
 )
 
 type FlowEventsConnectorConfig struct {
@@ -83,7 +82,7 @@ func NewConfig() FlowEventsConnectorConfig {
 	var config FlowEventsConnectorConfig
 	// If available, use env vars for config
 	for _, fieldName := range getFlattenedStructFields(reflect.TypeOf(config)) {
-		envKey := strings.ToUpper(fmt.Sprintf("%s_%s", Prefix, strings.ReplaceAll(fieldName, ".", "_")))
+		envKey := strings.ToUpper(strings.ReplaceAll(fieldName, ".", "_"))
 		envVar := os.Getenv(envKey)
 		if envVar != "" {
 			viper.Set(fieldName, envVar)
