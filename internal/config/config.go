@@ -29,11 +29,24 @@ const (
 )
 
 type FlowEventsConnectorConfig struct {
-	LogLevel    int8             `mapstructure:"logLevel"`
-	AutoMigrate bool             `mapstructure:"autoMigrate"`
-	Datastore   *DatastoreConfig `mapstructure:"datastore"`
-	Flow        *FlowConfig      `mapstructure:"flow"`
-	ControllerConfig
+	LogLevel                 int8             `mapstructure:"logLevel"`
+	AutoMigrate              bool             `mapstructure:"autoMigrate"`
+	Datastore                *DatastoreConfig `mapstructure:"datastore"`
+	Flow                     *FlowConfig      `mapstructure:"flow"`
+	UpstreamTimeout          time.Duration    `mapstructure:"upstreamTimeout"`
+	GatewayURL               string           `mapstructure:"gatewayURL"`
+	PrintResponse            bool             `mapstructure:"printResponse"`
+	PrintResponseBody        bool             `mapstructure:"printResponseBody"`
+	PrintRequestBody         bool             `mapstructure:"printRequestBody"`
+	RebuildInterval          time.Duration    `mapstructure:"rebuildInterval"`
+	RebuildTimeout           time.Duration    `mapstructure:"rebuildTimeout"`
+	TopicAnnotationDelimiter string           `mapstructure:"topicAnnontationDelimiter"`
+	AsyncFunctionInvocation  bool             `mapstructure:"asyncFunctionInvocation"`
+	PrintSync                bool             `mapstructure:"printSync"`
+	ContentType              string           `mapstructure:"contentType"`
+	BasicAuth                bool             `mapstructure:"basicAuth"`
+	UserAgent                string           `mapstructure:"userAgent"`
+	Topic                    string           `mapstructure:"topic"`
 }
 
 type DatastoreConfig struct {
@@ -45,23 +58,6 @@ type DatastoreConfig struct {
 	MigrationSource    string `mapstructure:"migrationSource"`
 	MaxIdleConnections int    `mapstructure:"maxIdleConnections"`
 	MaxOpenConnections int    `mapstructure:"maxOpenConnections"`
-}
-
-type ControllerConfig struct {
-	UpstreamTimeout          time.Duration `mapstructure:"upstreamTimeout"`
-	GatewayURL               string        `mapstructure:"gatewayURL"`
-	PrintResponse            bool          `mapstructure:"printResponse"`
-	PrintResponseBody        bool          `mapstructure:"printResponseBody"`
-	PrintRequestBody         bool          `mapstructure:"printRequestBody"`
-	RebuildInterval          time.Duration `mapstructure:"rebuildInterval"`
-	RebuildTimeout           time.Duration `mapstructure:"rebuildTimeout"`
-	TopicAnnotationDelimiter string        `mapstructure:"topicAnnontationDelimiter"`
-	AsyncFunctionInvocation  bool          `mapstructure:"asyncFunctionInvocation"`
-	PrintSync                bool          `mapstructure:"printSync"`
-	ContentType              string        `mapstructure:"contentType"`
-	BasicAuth                bool          `mapstructure:"basicAuth"`
-	UserAgent                string        `mapstructure:"userAgent"`
-	Topic                    string        `mapstructure:"topic"`
 }
 
 type FlowConfig struct {
@@ -76,9 +72,9 @@ type FlowConfig struct {
 func NewConfig() FlowEventsConnectorConfig {
 	viper.SetDefault("logLevel", zerolog.DebugLevel)
 	viper.SetDefault("autoMigrate", false)
-	viper.SetDefault("datastore.migrationSource", DefaultDatastoreMigrationSource)
-	viper.SetDefault("controller.userAgent", DefaultUserAgent)
-	viper.SetDefault("controller.topic", DefaultTopic)
+	viper.SetDefault("migrationSource", DefaultDatastoreMigrationSource)
+	viper.SetDefault("userAgent", DefaultUserAgent)
+	viper.SetDefault("topic", DefaultTopic)
 	viper.SetDefault("rebuildInterval", DefaultRebuildInterval)
 	viper.SetDefault("rebuildTimeout", DefaultRebuildTimeout)
 	viper.SetDefault("topicAnnontationDelimiter", DefaultTopicAnnotationDelimiter)
@@ -94,7 +90,7 @@ func NewConfig() FlowEventsConnectorConfig {
 	var config FlowEventsConnectorConfig
 	// If available, use env vars for config
 	for _, fieldName := range getFlattenedStructFields(reflect.TypeOf(config)) {
-		envKey := strings.ToUpper(strings.ReplaceAll(fieldName, ".", "_"))
+		envKey := strings.ReplaceAll(fieldName, ".", "_")
 		envVar := os.Getenv(envKey)
 		if envVar != "" {
 			viper.Set(fieldName, envVar)
