@@ -1,6 +1,8 @@
 package types
 
 import (
+	"bytes"
+	"encoding/json"
 	"flow-events-connector/internal/config"
 	"fmt"
 	"io"
@@ -34,7 +36,7 @@ func (ef *EventFunction) String() string {
 	return ef.Name
 }
 
-func (ef *EventFunction) InvokeFunction(i *cTypes.Invoker) error {
+func (ef *EventFunction) InvokeFunction(i *cTypes.Invoker, data interface{}) error {
 	// TODO: Connect values to config
 	headers := http.Header{
 		"X-Topic":     {"flow-events"},
@@ -44,7 +46,13 @@ func (ef *EventFunction) InvokeFunction(i *cTypes.Invoker) error {
 	// TODO: Allow Async Functions
 	gwURL := fmt.Sprintf("%s/%s/%s", i.GatewayURL, "function", ef.String())
 
-	req, err := http.NewRequest(http.MethodPost, gwURL, nil)
+	// Serialize the data struct into JSON
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("failed to marshal request body %w", err)
+	}
+
+	req, err := http.NewRequest(http.MethodPost, gwURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return fmt.Errorf("failed to create http request to %s %w", gwURL, err)
 	}

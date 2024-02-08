@@ -75,7 +75,7 @@ func (svc *FlowService) startEventMonitor(network string, functions types.EventF
 
 			for _, event := range eventData.Events {
 				for _, eventFunction := range functions[event.Type] {
-					eventFunction.InvokeFunction(svc.invoker)
+					eventFunction.InvokeFunction(svc.invoker, event)
 				}
 			}
 
