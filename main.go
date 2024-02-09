@@ -50,14 +50,20 @@ func main() {
 				if r.Duration < time.Second*1 {
 					duration = fmt.Sprintf("%dms", r.Duration.Milliseconds())
 				}
-				log.Info().Msgf("Response: %s [%d] (%s)", r.Function, r.Status, duration)
+				if cfg.PrintResponse {
+					log.Info().Msgf("Response for %s:\n%+v", r.Function, r)
+				} else if cfg.PrintResponseBody {
+					log.Info().Msgf("Response: %s [%d] (%s)\nBody: %s", r.Function, r.Status, duration, *r.Body)
+				} else {
+					log.Info().Msgf("Response: %s [%d] (%s)", r.Function, r.Status, duration)
+				}
 			}
 		}
 	}()
 
 	// Init Flow Service
 	// flowSvc := flow.NewService(cfg.Flow, db, invoker)
-	flowSvc := flow.NewService(cfg.Flow, invoker)
+	flowSvc := flow.NewService(&cfg, invoker)
 
 	if err := startEventsProbe(cfg, httpClient, creds, flowSvc); err != nil {
 		log.Error().Msgf("Error: %s\n", err.Error())
@@ -70,17 +76,20 @@ func main() {
 func startEventsProbe(cfg config.FlowEventsConnectorConfig, httpClient *http.Client, creds *auth.BasicAuthCredentials, flowSvc *flow.FlowService) error {
 	ticker := time.NewTicker(cfg.RebuildInterval)
 	defer ticker.Stop()
+	fmt.Println("started events probe")
 
 	for {
+		fmt.Println("start for")
 		<-ticker.C
-
+		fmt.Println("ticker mark")
 		flowSvc.StopEventMonitors()
 
-		var events types.Networks
+		events := make(types.Networks)
 		err := types.GetFunctionEvents(cfg, httpClient, creds, &events)
 		if err != nil {
 			log.Fatal().Msg("Could Not Get Function Events")
 		}
+		fmt.Println("got events")
 
 		err = types.GetCoreEvents(cfg, &events)
 		if err != nil {

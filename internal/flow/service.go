@@ -20,29 +20,30 @@ type FlowService struct {
 	emulatorClient      *grpc.Client
 	invoker             *cTypes.Invoker
 	ctx                 context.Context
+	cfg                 *config.FlowEventsConnectorConfig
 	eventMonitorRunning bool
 
 	WaitGroup *sync.WaitGroup
 }
 
 // func NewService(cfg *config.FlowConfig, db database.Database, invoker *cTypes.Invoker) *FlowService {
-func NewService(cfg *config.FlowConfig, invoker *cTypes.Invoker) *FlowService {
+func NewService(cfg *config.FlowEventsConnectorConfig, invoker *cTypes.Invoker) *FlowService {
 	// Setup Mainnet Client
-	mainnet, err := grpc.NewClient(cfg.MainnetAccessNode)
+	mainnet, err := grpc.NewClient(cfg.Flow.MainnetAccessNode)
 	if err != nil {
 		log.Fatal().Msgf("Unable To Init Mainnet Flow Client: %s", err)
 	}
 
 	// Setup Testnet Client
-	testnet, err := grpc.NewClient(cfg.TestnetAccessNode)
+	testnet, err := grpc.NewClient(cfg.Flow.TestnetAccessNode)
 	if err != nil {
 		log.Fatal().Msgf("Unable To Init Testnet Flow Client: %s", err)
 	}
 
 	// Setup Crescendo Client
 	var crescendo *grpc.Client
-	if cfg.UseCrescendo {
-		crescendo, err = grpc.NewClient(cfg.CrescendoAccessNode)
+	if cfg.Flow.UseCrescendo {
+		crescendo, err = grpc.NewClient(cfg.Flow.CrescendoAccessNode)
 		if err != nil {
 			log.Fatal().Msgf("Unable To Init Crescendo Flow Client: %s", err)
 		}
@@ -50,8 +51,8 @@ func NewService(cfg *config.FlowConfig, invoker *cTypes.Invoker) *FlowService {
 
 	// Setup Emulator Client
 	var emulator *grpc.Client
-	if cfg.UseEmulator {
-		emulator, err = grpc.NewClient(cfg.EmulatorAccessNode)
+	if cfg.Flow.UseEmulator {
+		emulator, err = grpc.NewClient(cfg.Flow.EmulatorAccessNode)
 		if err != nil {
 			log.Fatal().Msgf("Unable To Init Emulator Flow Client: %s", err)
 		}
@@ -66,6 +67,7 @@ func NewService(cfg *config.FlowConfig, invoker *cTypes.Invoker) *FlowService {
 		emulatorClient:  emulator,
 		invoker:         invoker,
 		ctx:             context.Background(),
+		cfg:             cfg,
 
 		WaitGroup: new(sync.WaitGroup),
 	}

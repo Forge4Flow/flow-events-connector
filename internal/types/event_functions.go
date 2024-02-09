@@ -6,7 +6,6 @@ import (
 	"flow-events-connector/internal/config"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -16,6 +15,7 @@ import (
 	"github.com/openfaas/faas-provider/auth"
 	"github.com/openfaas/faas-provider/sdk"
 	ptypes "github.com/openfaas/faas-provider/types"
+	"github.com/rs/zerolog/log"
 )
 
 type Networks map[string]EventFunctions
@@ -36,11 +36,10 @@ func (ef *EventFunction) String() string {
 	return ef.Name
 }
 
-func (ef *EventFunction) InvokeFunction(i *cTypes.Invoker, data interface{}) error {
-	// TODO: Connect values to config
+func (ef *EventFunction) InvokeFunction(cfg config.FlowEventsConnectorConfig, i *cTypes.Invoker, data interface{}) error {
 	headers := http.Header{
-		"X-Topic":     {"flow-events"},
-		"X-Connector": {"flow-events-connector"},
+		"X-Topic":     {cfg.Topic},
+		"X-Connector": {cfg.ConnectorName},
 	}
 
 	// TODO: Allow Async Functions
@@ -65,6 +64,10 @@ func (ef *EventFunction) InvokeFunction(i *cTypes.Invoker, data interface{}) err
 		defer req.Body.Close()
 	}
 	start := time.Now()
+
+	if cfg.PrintRequestBody {
+		log.Info().Msgf("Request: %+v", req)
+	}
 
 	var body *[]byte
 	res, err := i.Client.Do(req)
@@ -166,6 +169,16 @@ func toEventFunction(f ptypes.FunctionStatus, namespace string, events *Networks
 		wNetwork := strings.SplitN(e, ".", 2)
 		network := wNetwork[0]
 		event := wNetwork[1]
+
+		if _, ok := (*events)[network]; !ok {
+			// If the network does not exist in the map, initialize its inner map
+			(*events)[network] = make(EventFunctions)
+		}
+
+		if _, ok := (*events)[network][event]; !ok {
+			// If the event does not exist in the network, initialize its slice
+			(*events)[network][event] = []EventFunction{}
+		}
 
 		(*events)[network][event] = append((*events)[network][event], EventFunction{
 			FuncData:  f,

@@ -17,12 +17,13 @@ const (
 	DefaultDatastoreMigrationSource = "github://forge4flow/flow-events-connector/internal/database/migrations"
 	DefaultUserAgent                = "forge4flow/flow-events-connector@v0.0.1"
 	DefaultTopic                    = "flow-events"
-	DefaultRebuildInterval          = 5 * time.Minute
+	DefaultRebuildInterval          = 1 * time.Minute
 	DefaultRebuildTimeout           = 60 * time.Second
 	DefaultTopicAnnotationDelimiter = ","
 	DefaultGatewayBasicAuth         = true
 	DefaultGatewayURL               = "http://gateway:8080"
 	DefaultPrintResponseBody        = true
+	DefaultConnectorName            = "flow-events-connector"
 	DefaultMainnetAccessNode        = "access.mainnet.nodes.onflow.org:9000"
 	DefaultTestnetAccessNode        = "access.testnet.nodes.onflow.org:9000"
 	DefaultCrescendoAccessNode      = "access.crescendo.nodes.onflow.org:9000"
@@ -47,6 +48,7 @@ type FlowEventsConnectorConfig struct {
 	BasicAuth                bool             `mapstructure:"basicAuth"`
 	UserAgent                string           `mapstructure:"userAgent"`
 	Topic                    string           `mapstructure:"topic"`
+	ConnectorName            string           `mapstructure:"connectorName"`
 }
 
 type DatastoreConfig struct {
@@ -81,6 +83,7 @@ func NewConfig() FlowEventsConnectorConfig {
 	viper.SetDefault("basicAuth", DefaultGatewayBasicAuth)
 	viper.SetDefault("gatewayURL", DefaultGatewayURL)
 	viper.SetDefault("printResponseBody", DefaultPrintResponseBody)
+	viper.SetDefault("connectorName", DefaultConnectorName)
 	viper.SetDefault("flow.mainnetAccessNode", DefaultMainnetAccessNode)
 	viper.SetDefault("flow.testnetAccessNode", DefaultTestnetAccessNode)
 	viper.SetDefault("flow.crescendoAccessNode", DefaultCrescendoAccessNode)
