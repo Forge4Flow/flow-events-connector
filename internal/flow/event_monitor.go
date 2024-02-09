@@ -2,10 +2,10 @@ package flow
 
 import (
 	"flow-events-connector/internal/types"
-	"fmt"
 
 	flowSDK "github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/access/grpc"
+	"github.com/rs/zerolog/log"
 )
 
 func (svc *FlowService) startEventMonitor(network string, functions types.EventFunctions) error {
@@ -40,7 +40,7 @@ func (svc *FlowService) startEventMonitor(network string, functions types.EventF
 	svc.WaitGroup.Add(1)
 
 	reconnect := func(height uint64) error {
-		fmt.Printf("Reconnecting at block %d\n", height)
+		log.Info().Msgf("Reconnecting at block %d\n", height)
 
 		data, errChan, err = client.SubscribeEventsByBlockHeight(svc.ctx, height, filter)
 		if err != nil {
@@ -97,7 +97,7 @@ func (svc *FlowService) startEventMonitor(network string, functions types.EventF
 				continue
 			}
 
-			fmt.Printf("~~~ ERROR: %s ~~~\n", err.Error())
+			log.Info().Msgf("~~~ ERROR: %s ~~~\n", err.Error())
 			err = reconnect(lastHeight + 1)
 			if err != nil {
 				svc.WaitGroup.Done()

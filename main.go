@@ -76,12 +76,10 @@ func main() {
 func startEventsProbe(cfg config.FlowEventsConnectorConfig, httpClient *http.Client, creds *auth.BasicAuthCredentials, flowSvc *flow.FlowService) error {
 	ticker := time.NewTicker(cfg.RebuildInterval)
 	defer ticker.Stop()
-	fmt.Println("started events probe")
 
 	for {
-		fmt.Println("start for")
 		<-ticker.C
-		fmt.Println("ticker mark")
+
 		flowSvc.StopEventMonitors()
 
 		events := make(types.Networks)
@@ -89,7 +87,6 @@ func startEventsProbe(cfg config.FlowEventsConnectorConfig, httpClient *http.Cli
 		if err != nil {
 			log.Fatal().Msg("Could Not Get Function Events")
 		}
-		fmt.Println("got events")
 
 		err = types.GetCoreEvents(cfg, &events)
 		if err != nil {
