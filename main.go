@@ -21,12 +21,6 @@ func main() {
 	cfg := config.NewConfig()
 	creds := cTypes.GetCredentials()
 
-	// // Init DB
-	// db, err := database.InitDB(cfg, DatastoreMigrationVersion)
-	// if err != nil {
-	// 	log.Fatal().Msg("Failed to initialize database")
-	// }
-
 	log.Info().Msgf("Gateway URL: %s", cfg.GatewayURL)
 	log.Info().Msgf("Rebuild interval: %s\tRebuild timeout: %s", cfg.RebuildInterval, cfg.RebuildTimeout)
 
@@ -62,7 +56,6 @@ func main() {
 	}()
 
 	// Init Flow Service
-	// flowSvc := flow.NewService(cfg.Flow, db, invoker)
 	flowSvc := flow.NewService(&cfg, invoker)
 
 	if err := startEventsProbe(cfg, httpClient, creds, flowSvc); err != nil {
